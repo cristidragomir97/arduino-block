@@ -2,7 +2,6 @@ FROM python:3.9-slim-bullseye AS builder
 
 ENV PATH="/arduino:${PATH}"
 
-
 RUN apt-get update && apt-get install -y curl 
 RUN mkdir -p /arduino && curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR=/arduino sh
 RUN arduino-cli core update-index
@@ -13,7 +12,7 @@ FROM python:3.9-slim-bullseye AS runtime
 
 ENV PATH="/arduino:${PATH}"
 
-RUN apt-get update && apt-get install -y avrdude python3-dev python3-rpi.gpio strace dbus
+RUN apt-get update && apt-get install -y avrdude python3-dev python3-rpi.gpio strace dbus git 
 
 COPY --from=builder /arduino /arduino
 
@@ -42,14 +41,11 @@ WORKDIR /usr/sketch
 COPY sketch.ino /usr/sketch/sketch.ino
 COPY autoreset  autoreset
 COPY run_avrdude.sh run_avrdude.sh
+COPY run.sh run.sh 
 
 RUN pip3 install pyserial
 
-RUN chmod +x autoreset
-RUN chmod +x run_avrdude.sh
+RUN chmod +x autoreset run_avrdude.sh run.sh 
 
-RUN arduino-cli compile --fqbn ${ARDUINO_FQBN} sketch.ino --export-binaries
-
-CMD ./run_avrdude.sh -v -p ${AVRDUDE_CPU} -c arduino -P ${SERIAL_PORT} -b 57600 -D -U flash:w:/flashme.hex \
-    && python3 -m serial.tools.miniterm ${SERIAL_PORT} ${MONITOR_BAUD}
+CMD ./run.sh
 

@@ -1,0 +1,1 @@
+strace -o "|/usr/avrdude/autoreset" -eioctl avrdude $@

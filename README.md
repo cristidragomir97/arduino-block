@@ -1,7 +1,8 @@
 # Arduino Block 
+This block allows you to compile, flash and update firmware using `arduino-cli` and `avrdude`. 
+For now this is only compatible with 8-bit arduinos that use USB/UART. 
 
-Right now, this is only compatible with 8-bit arduinos that use USB/UART 
-
+Upon runtime, the block pulls the repository found at `REPO`, compiles the skecth for the board you have set with `ARDUINO_FQBN`, and flashes it to `SERIAL_PORT` using `avrdude`
 
 ## Variables 
 

@@ -5,8 +5,7 @@ ENV PATH="/arduino:${PATH}"
 RUN apt-get update && apt-get install -y curl 
 RUN mkdir -p /arduino && curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR=/arduino sh
 RUN arduino-cli core update-index
-RUN arduino-cli core install arduino:avr arduino:megaavr arduino:samd
-
+RUN arduino-cli core install arduino:avr
 
 FROM python:3.9-slim-bullseye AS runtime
 
@@ -42,6 +41,8 @@ COPY sketch.ino /usr/sketch/sketch.ino
 COPY autoreset  autoreset
 COPY run_avrdude.sh run_avrdude.sh
 COPY run.sh run.sh 
+
+RUN arduino-cli core install arduino:avr
 
 RUN pip3 install pyserial
 

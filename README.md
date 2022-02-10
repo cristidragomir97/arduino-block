@@ -4,6 +4,10 @@ For now this is only compatible with 8-bit arduinos that use USB/UART.
 
 Upon runtime, the block pulls the repository found at `REPO`, compiles the skecth for the board you have set with `ARDUINO_FQBN`, and flashes it to `SERIAL_PORT` using `avrdude`
 
+This block assumes your board is connected via a USB-to-UART bridge like `FT232H` or `CH340`. If you wish to use the RaspberryPi/Jetson native UART, you need to connect the boards reset pin to a pin on the RPi GPIO header and set the `RESET_PIN` variable. 
+
+Additionally, for easy debugging, if `MONITOR_BAUD` is set, arduino-block will open a serial monitor once flashing is done. 
+
 ## Variables 
 
 | Variable | Description | Example | 

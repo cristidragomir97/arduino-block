@@ -11,7 +11,7 @@ FROM python:3.9-slim-bullseye AS runtime
 
 ENV PATH="/arduino:${PATH}"
 
-RUN apt-get update && apt-get install -y avrdude python3-dev python3-rpi.gpio strace dbus git 
+RUN apt-get update && apt-get install -y avrdude python3-dev strace dbus git 
 
 COPY --from=builder /arduino /arduino
 
@@ -36,17 +36,19 @@ ENV DBUS_SYSTEM_BUS_ADDRESS="unix:path=/host/run/dbus/system_bus_socket \
   string:\"serial-getty@serial0.service\" \
   string:replace" 
 
-WORKDIR /usr/sketch
-COPY sketch.ino /usr/sketch/sketch.ino
-COPY autoreset  autoreset
-COPY run_avrdude.sh run_avrdude.sh
-COPY run.sh run.sh 
 
 RUN arduino-cli core install arduino:avr
 
 RUN pip3 install pyserial
 
-RUN chmod +x autoreset run_avrdude.sh run.sh 
+WORKDIR /usr/src/repo 
 
-CMD ./run.sh
+RUN git clone ${REPO}  \
+    && cd {REPO_NAME} \
+    && cd {SKETCH_FOLDER} \
+    && arduino-cli compile --fqbn ${ARDUINO_FQBN} firmware.ino --export-binaries
+
+CMD avrdude -v -p ${AVRDUDE_CPU} -c arduino -P ${SERIAL_PORT} -b 57600 -D -U flash:w:/firmware.ino.with_bootloader.hex \
+    && python3 -m serial.tools.miniterm ${SERIAL_PORT} ${MONITOR_BAUD} 
+
 
